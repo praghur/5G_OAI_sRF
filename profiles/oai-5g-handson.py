@@ -202,12 +202,14 @@ import geni.rspec.pg as rspec
 import geni.urn as URN
 import geni.rspec.igext as IG
 import geni.rspec.emulab.pnext as PN
+import geni.rspec.emulab as emulab
 
 request = portal.context.makeRequestRSpec()
 
 node = request.RawPC( "node" )
 node.hardware_type = "d430"
 node.disk_image = "urn:publicid:IDN+emulab.net+image+OAI2021FallWS:oai-cn5g-docker"
+node.startVNC()
 
 tour = IG.Tour()
 tour.Description(IG.Tour.MARKDOWN, tourDescription)
