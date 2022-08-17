@@ -36,9 +36,6 @@ bash
 git clone --branch 2021.w46-powder --depth 1 https://gitlab.flux.utah.edu/powder-mirror/openairinterface5g ~/openairinterface5g
 ```
 
-In the latter case, the helper script will print out the command it's about to
-run, and execute it when you press enter/return.
-
 Next, install dependencies and build OAI:
 
 ```
