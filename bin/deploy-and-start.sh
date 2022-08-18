@@ -2,7 +2,7 @@
 set -ex
 export DISPLAY=:1
 
-if [ ! -d "~/openairingerface5g" ]
+if [ ! -d ~/openairinterface5g ]
 then
     sudo apt install -y iperf3 wmctrl
     git clone --branch 2022.w32 --depth 1 https://gitlab.flux.utah.edu/powder-mirror/openairinterface5g ~/openairinterface5g
@@ -14,8 +14,9 @@ then
 else
     cd /opt/oai-cn5g-fed/docker-compose
     sudo python3 ./core-network.py --type stop-mini --fqdn no --scenario 1
-    sudo python3 ./core-network.py --type start-mini --fqdn no --scenario 1
 fi
+
+sudo python3 ./core-network.py --type start-mini --fqdn no --scenario 1
 
 xterm -e bash -c "sudo docker logs -f oai-amf" &
 sleep 1
