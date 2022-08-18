@@ -1,0 +1,21 @@
+set -ex
+
+sudo apt install -y iperf3
+git clone --branch 2022.w32 --depth 1 https://gitlab.flux.utah.edu/powder-mirror/openairinterface5g ~/openairinterface5g
+cd ~/openairinterface5g
+source oaienv
+cd cmake_targets/
+./build_oai -I
+./build_oai --gNB --nrUE -w SIMU --build-lib all --ninja
+
+cd /opt/oai-cn5g-fed/docker-compose
+sudo python3 ./core-network.py --type start-mini --fqdn no --scenario 1
+xterm -e bash -c "sudo docker logs -f oai-amf" &
+sleep 1
+xterm -e bash -c "cd ~/openairinterface5g/cmake_targets; sudo RFSIMULATOR=server ./ran_build/build/nr-softmodem --rfsim --sa -O /local/repository/etc/gnb.conf -d" &
+sleep 5
+xterm -e bash -c "cd ~/openairinterface5g/cmake_targets; sudo sudo RFSIMULATOR=127.0.0.1 ./ran_build/build/nr-uesoftmodem -r 106 --numerology 1 --band 78 -C 3619200000 --rfsim --sa --nokrnmod -O /local/repository/etc/ue.conf -d" &
+sleep 5
+xterm -e bash -c "iperf3 -s" &
+sleep 1
+xterm -e bash -c "sudo docker exec -it oai-ext-dn iperf3 -c 12.1.1.129" &
