@@ -2,15 +2,22 @@
 set -ex
 export DISPLAY=:1
 
-sudo apt install -y iperf3 wmctrl
-git clone --branch 2022.w32 --depth 1 https://gitlab.flux.utah.edu/powder-mirror/openairinterface5g ~/openairinterface5g
-cd ~/openairinterface5g
-source oaienv
-cd cmake_targets/
-./build_oai -I
-./build_oai --gNB --nrUE -w SIMU --build-lib all --ninja
+if [ ! -d "~/openairingerface5g" ]
+then
+    sudo apt install -y iperf3 wmctrl
+    git clone --branch 2022.w32 --depth 1 https://gitlab.flux.utah.edu/powder-mirror/openairinterface5g ~/openairinterface5g
+    cd ~/openairinterface5g
+    source oaienv
+    cd cmake_targets/
+    ./build_oai -I
+    ./build_oai --gNB --nrUE -w SIMU --build-lib all --ninja
+else
+    cd /opt/oai-cn5g-fed/docker-compose
+    sudo python3 ./core-network.py --type stop-mini --fqdn no --scenario 1
+    sudo python3 ./core-network.py --type start-mini --fqdn no --scenario 1
+fi
 
-xterm -e bash -c "cd /opt/oai-cn5g-fed/docker-compose; sudo python3 ./core-network.py --type start-mini --fqdn no --scenario 1; sudo docker logs -f oai-amf" &
+xterm -e bash -c "sudo docker logs -f oai-amf" &
 sleep 1
 xterm -e bash -c "cd ~/openairinterface5g/cmake_targets; sudo RFSIMULATOR=server ./ran_build/build/nr-softmodem --rfsim --sa -O /local/repository/etc/gnb.conf -d" &
 sleep 5
