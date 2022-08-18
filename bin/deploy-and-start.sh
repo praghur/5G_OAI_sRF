@@ -18,4 +18,5 @@ xterm -e bash -c "cd ~/openairinterface5g/cmake_targets; sudo sudo RFSIMULATOR=1
 sleep 5
 xterm -e bash -c "iperf3 -s" &
 sleep 1
-xterm -e bash -c "sudo docker exec -it oai-ext-dn iperf3 -c 12.1.1.129" &
+UEIP=$(ip -o -4 addr list oaitun_ue1 | awk '{print $4}' | cut -d/ -f1)
+sudo docker exec -it oai-ext-dn iperf3 -c $UEIP -t 10000
