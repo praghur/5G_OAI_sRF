@@ -16,7 +16,7 @@ sleep 1
 xterm -e bash -c "cd ~/openairinterface5g/cmake_targets; sudo RFSIMULATOR=server ./ran_build/build/nr-softmodem --rfsim --sa -O /local/repository/etc/gnb.conf -d" &
 sleep 5
 xterm -e bash -c "cd ~/openairinterface5g/cmake_targets; sudo sudo RFSIMULATOR=127.0.0.1 ./ran_build/build/nr-uesoftmodem -r 106 --numerology 1 --band 78 -C 3619200000 --rfsim --sa --nokrnmod -O /local/repository/etc/ue.conf -d" &
-sleep 5
+sleep 10
 xterm -e bash -c "iperf3 -s" &
 sleep 1
 UEIP=$(ip -o -4 addr list oaitun_ue1 | awk '{print $4}' | cut -d/ -f1)
