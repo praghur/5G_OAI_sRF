@@ -201,12 +201,25 @@ import geni.rspec.igext as IG
 import geni.rspec.emulab.pnext as PN
 import geni.rspec.emulab as emulab
 
+pc = portal.Context()
+pc.defineParameter(
+    name="auto_deploy",
+    description="Deploy and run tutorial commands",
+    typ=portal.ParameterType.BOOLEAN,
+    defaultValue=True,
+    advanced=False
+)
+
+params = pc.bindParameters()
 request = portal.context.makeRequestRSpec()
 
 node = request.RawPC( "node" )
 node.hardware_type = "d430"
 node.disk_image = "urn:publicid:IDN+emulab.net+image+OAI2021FallWS:oai-cn5g-docker"
 node.startVNC()
+
+if params.auto_deploy:
+    node.addService(rspec.Execute(shell="bash", command="/local/repository/bin/deploy-and-start.sh"))
 
 tour = IG.Tour()
 tour.Description(IG.Tour.MARKDOWN, tourDescription)
