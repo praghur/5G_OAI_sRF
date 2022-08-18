@@ -33,7 +33,7 @@ branch in order to speed up the cloning process.
 ```
 bash
 # We will use a dedicated tag since one package is sometimes difficult to install
-git clone --branch 2021.w46-powder --depth 1 https://gitlab.flux.utah.edu/powder-mirror/openairinterface5g ~/openairinterface5g
+git clone --branch 2022.w32 --depth 1 https://gitlab.flux.utah.edu/powder-mirror/openairinterface5g ~/openairinterface5g
 ```
 
 Next, install dependencies and build OAI:
@@ -53,7 +53,7 @@ export UHD_VERSION=3.15.0.0
 
 # Let's build now the gNB and nrUE soft modems
 # The next command takes around 6 minutes
-./build_oai --gNB --nrUE -w SIMU --build-lib nrscope --ninja
+./build_oai --gNB --nrUE -w SIMU --build-lib all --ninja
 ```
 
 ### Start the "minimal" OAI 5G core network deployment
