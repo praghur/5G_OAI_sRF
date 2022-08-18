@@ -16,6 +16,7 @@ else
     sudo python3 ./core-network.py --type stop-mini --fqdn no --scenario 1
 fi
 
+cd /opt/oai-cn5g-fed/docker-compose
 sudo python3 ./core-network.py --type start-mini --fqdn no --scenario 1
 
 xterm -e bash -c "sudo docker logs -f oai-amf" &
