@@ -2,7 +2,8 @@
 set -ex
 export DISPLAY=:1
 
-sudo killall nr-uesoftmodem nr-softmodem iperf3 || true
+sudo killall nr-uesoftmodem nr-softmodem iperf3 oai-watchdog.sh || true
+
 cd /opt/oai-cn5g-fed/docker-compose
 sudo python3 ./core-network.py --type stop-mini --fqdn no --scenario 1
 sudo python3 ./core-network.py --type start-mini --fqdn no --scenario 1
@@ -19,3 +20,5 @@ UEIP=$(ip -o -4 addr list oaitun_ue1 | awk '{print $4}' | cut -d/ -f1)
 xterm -e bash -c "sudo docker exec -it oai-ext-dn iperf3 -c $UEIP -t 50000" &
 sleep 2
 wmctrl -a "DL SCOPE" && wmctrl -r "DL SCOPE" -e 0,0,0,-1,-1 && wmctrl -a "UL SCOPE" && wmctrl -r "UL SCOPE" -e 0,870,0,-1,-1
+
+nohup /local/repository/bin/oai-watchdog.sh &
