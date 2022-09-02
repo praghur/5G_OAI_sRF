@@ -34,7 +34,7 @@ before proceeding. This may take a few minutes.
 **We recommend using Chrome or Firefox. There are known issues with the VNC
 apparatus in Safari.**
 
-Once your experiment becomse ready, you should see a green box in the "Topology
+Once your experiment becomes ready, you should see a green box in the "Topology
 View" labeled "node". This box represents the single compute node deployed as
 part of the profile. It uses a hard drive image with the OAI RAN and 5G core
 network software pre-installed. Click on it to reveal a context menu and
@@ -254,7 +254,7 @@ Connected to 127.0.0.1.
 Escape character is '^]'.
 ```
 
-Press `enter` to yeild the following prompt:
+Press `enter` to yield the following prompt:
 
 ```
 softmodem_5Gue>
