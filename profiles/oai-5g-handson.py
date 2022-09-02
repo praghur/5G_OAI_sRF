@@ -1,20 +1,25 @@
 #!/usr/bin/python
+#TODO: working OTA demo
+#
 
 tourDescription = """
 ## OAI 5G with Simulated RF Hands-on
 
 This profile deploys a single compute node with software for experimenting with
 an end-to-end OpenAirInterface5G (OAI) network in standalone mode using a
-simulated RF link. The included instructions detail how to:
+simulated RF link. The node is provisioned with a VNC server so users can access
+the desktop environment of the node in a web browser after instantiation. The
+included instructions show how to use shells in a browser-based VNC session to:
 
 1. Start the basic 5G core network functions using docker.
 2. Use the RF simulator included with OAI to stand up a single gNodeB/UE pair.
-   (IQ samples passed via sockets).
+   (IQ samples passed via sockets) and view channel metrics using the gNodeB and
+   UE soft scopes.
 3. Generate some traffic between the UE and a traffic generation container
    deployed along side the 5G core network functions.
-4. Use the channel modeling capabilities of the RF simulator to add noise to
+4. Use the channel modeling capabilities of the OAI RF simulator to add noise to
    the channel and witness changes in the constellation diagrams displayed by
-   downlink soft scope.
+   the UE downlink soft scope.
 
 """
 
@@ -22,25 +27,51 @@ tourInstructions = """
 
 Note: After you instantiate your experiment, you have to wait until the POWDER
 portal shows your experiment status in green as "Your experiment is ready!"
-before proceeding.
+before proceeding. This may take a few minutes.
 
+### Open a VNC session to the node in your web browser
+
+**We recommend using Chrome or Firefox. There are known issues with the VNC
+apparatus in Safari.**
+
+Once your experiment becomse ready, you should see a green box in the "Topology
+View" labeled "node". This box represents the single compute node deployed as
+part of the profile. It uses a hard drive image with the OAI RAN and 5G core
+network software pre-installed. Click on it to reveal a context menu and
+select "Open VNC window". This will open a VNC session to "node" in a second
+browser window and there will be a single "xterm" shell on the desktop with a
+command prompt.
+
+We will be using several shells during this tutorial. You can create a new shell
+at any time by clicking on an empty section of desktop and selecting "XTerm" in
+the menu that appears. (If there are windows covering the whole desktop, just
+minimize or move them around to reveal an empty spot on the desktop to click on.
+You can also hide/reveal windows by clicking on them in the list on the right
+side of the desktop.)
+
+There are some commands in the following instructions that are quite long. In
+most browsers, you should be able to copy/paste these command into the VNC
+shells using the keyboard shortcuts that you are used to. (**To be removed**:
+Need to double check this. Regular keyboard shortcuts work for me on a Mac. If
+they don't work for other users, there is no middle button on a Mac trackpad and
+no other way I'm aware of to send the typical X11 "Shift-Insert" command in the
+VNC shell window, even if they first paste into the box at the top left. Not
+sure about Windows, but I maybe there is an "Insert" key that can be reached via
+a "Fn" button or similar.)
 
 ### Start the "minimal" OAI 5G core network deployment
 
-```
-# The next 2 commands are done to make the containers visible from an external server
-# You SHALL do these if your EPC containers are not on the same server as your gNB
-# Not the case in our experiment. But good practice.
-sudo sysctl net.ipv4.conf.all.forwarding=1
-sudo iptables -P FORWARD ACCEPT
+In the first shell, we will use a helper script provided as part of the OAI CN5G
+federated repository to deploy a minimal 5G core network (AMF, SMF, UPF, NRF,
+and a special container for generating traffic).
 
-# Let's deploy now
+```
 cd /opt/oai-cn5g-fed/docker-compose
 sudo python3 ./core-network.py --type start-mini --fqdn no --scenario 1
 ```
 
 It will take the `core-network.py` script several seconds to deploy the network
-function containers and indicate that they are healthy.
+function containers and indicate that they are healthy:
 
 ```
 ...
@@ -55,6 +86,11 @@ that the UE registers later on:
 
 ```
 sudo docker logs -f oai-amf
+```
+
+You should see output similar to the following:
+
+```
 ...
 [2021-11-24T16:41:33.348997] [AMF] [amf_app] [info ] |----------------------------------------------------UEs' information--------------------------------------------|
 [2021-11-24T16:41:33.349004] [AMF] [amf_app] [info ] | Index |      5GMM state      |      IMSI        |     GUTI      | RAN UE NGAP ID | AMF UE ID |  PLMN   |Cell ID|
@@ -62,10 +98,11 @@ sudo docker logs -f oai-amf
 [2021-11-24T16:41:33.349016] [AMF] [amf_app] [info ]
 ```
 
-### Start the monolithic gNodeB
+### Start the monolithic gNodeB (i.e., no CU/DU/RU split)
 
-In another terminal session on `node`, run the monolithic gNodeB using the
-configuration file provided by the profile::
+Open another shell (click on an empty section of desktop and select "XTerm"),
+and start the monolithic gNodeB using the configuration file provided by the
+profile and appropriate parameters:
 
 ```
 cd /opt/openairinterface5g/cmake_targets
@@ -88,12 +125,14 @@ that has been adjusted to use the tracking area code and mobile network code
 that the minimal OAI 5G core network deployment expects.
 
 You will notice the gNodeB connecting to the AMF if you are watching oai-amf log
-and the gNodeB scope will open up and start showing various plots for the uplink.
+and the gNodeB scope will open up and start showing various plots for the
+uplink. There won't be anything interesting happening in the scope yet, since we
+haven't started/attached a UE.
 
 ### Start the UE
 
-In another terminal on `node`, run the UE using the configuration file provided
-by the profile and the following parameters:
+Open another shell and start the UE using the configuration file provided
+by the profile and parameters that match the gNodeB configuration:
 
 ```
 cd /opt/openairinterface5g/cmake_targets
@@ -103,6 +142,7 @@ sudo RFSIMULATOR=127.0.0.1 ./ran_build/build/nr-uesoftmodem \
   -C 3619200000 \
   -d \
   --sa \
+  --nokrnmod \
   --numerology 1 \
   --band 78 \
   --rfsim \
@@ -113,6 +153,7 @@ sudo RFSIMULATOR=127.0.0.1 ./ran_build/build/nr-uesoftmodem \
 The `nrUE`-specific options are:
 *  `-r` to set the number of resource blocks
 *  `-C` to set the center carrier frequency
+*  `--nokrnmod` to allow UE process to create interface for PDU session
 *  `--numerology` to set 5G numerology (sub-carrer spacing)
 *  `--band` to set 3GPP band
 *  `--rfsimulator.options` to set simulator options (channel modeling in this case)
@@ -126,39 +167,88 @@ The UE will associate with the network, as indicated by log output from the AMF,
 gNodeB, and UE processes, and the UE scope will open up showing various plots
 for the downlink.
 
+If you look again at the gNodeB scope, you'll notice the plots now indicating
+that there is uplink traffic as well, but it is mostly control-plane traffic.
+
 ### Generate some traffic
 
-You can generate some traffic by pinging the external data network service that
-gets deployed along with the OAI 5G core network functions:
+Let's generate some bi-directional user-plane traffic at the UE by pinging the
+external data network service that gets deployed along with the OAI 5G core
+network functions. Open another shell issue the following command.
 
 ```
 ping -I oaitun_ue1 192.168.70.135
 ```
 
-Let's stress the downlink a bit more using `iperf3` and watch the constellation
-diagram change as the modulation and coding scheme (MCS) changes to accomodate
-the traffic.
+Note that we are telling `ping` to use the network interface associated with the
+UE PDU session. You should see output similar to the following:
 
 ```
-# start the server
-iperf3 -s
+PING 192.168.70.135 (192.168.70.135) from 12.1.1.130 oaitun_ue1: 56(84) bytes of data.
+64 bytes from 192.168.70.135: icmp_seq=1 ttl=63 time=40.2 ms
+64 bytes from 192.168.70.135: icmp_seq=2 ttl=63 time=34.7 ms
+64 bytes from 192.168.70.135: icmp_seq=3 ttl=63 time=43.4 ms
+64 bytes from 192.168.70.135: icmp_seq=4 ttl=63 time=37.4 ms
+64 bytes from 192.168.70.135: icmp_seq=5 ttl=63 time=39.2 ms
+```
 
-# in another terminal, start the client on the external data network container
-# and point it at the UE ip address
+Stop the `ping` process with the key combination `ctrl-C`. We'll reuse the same
+shell to start an `iperf3` server so we can generate some heavy downlink
+traffic:
+
+```
+iperf3 -s
+```
+
+You should see output like the following:
+
+```
+-----------------------------------------------------------
+Server listening on 5201
+-----------------------------------------------------------
+```
+
+Now open another shell and use it to start an `iperf3` client inside the traffic
+generation Docker container. We need to point the `iperf3` client at our UE, so
+we grab the UE IP address and put it in a variable, then use it in the command
+we execute in the Docker container (`oai-ext-dn`).
+
+```
 UEIP=$(ip -o -4 addr list oaitun_ue1 | awk '{print $4}' | cut -d/ -f1)
 sudo docker exec -it oai-ext-dn iperf3 -c $UEIP -t 50000
 ```
 
-Notice the changes in the plots on the UE scope.. the MCS changes to a higher
-order QAM and the energy plots in the upper sections of the scope show more
-resource blocks being scheduled.
-
-Let's leave `iperf3` running and increase the noise the UE sees in the downlink.
-To do so, we'll use another session to connect to the telnet server running in
-the UE softmodem.
+You should see output similar to the following:
 
 ```
-$ telnet 127.0.0.1 9090
+Connecting to host 12.1.1.130, port 5201
+[  4] local 192.168.70.135 port 41616 connected to 12.1.1.130 port 5201
+[ ID] Interval           Transfer     Bandwidth       Retr  Cwnd
+[  4]   0.00-1.00   sec  1.17 MBytes  9.79 Mbits/sec    0   76.4 KBytes
+[  4]   1.00-2.00   sec  1.30 MBytes  10.9 Mbits/sec    7    100 KBytes
+[  4]   2.00-3.00   sec  1.43 MBytes  12.0 Mbits/sec    0    110 KBytes
+[  4]   3.00-4.00   sec  1.55 MBytes  13.0 Mbits/sec    0    120 KBytes
+[  4]   4.00-5.00   sec  1.55 MBytes  13.0 Mbits/sec    0    129 KBytes
+...
+```
+
+Now bring the UE scope back into view (window titled "NR DL SCOPE UE 0"). Notice
+the changes in the "PDSCH I/Q of MF Output" plot on the UE scope.. the MCS
+changes to a higher order QAM (more clusters of dots) and the energy plots in
+the upper sections of the scope show more resource blocks being scheduled. There
+will probably be 64 clusters apparent (64-QAM).
+
+Let's leave `iperf3` running and increase the noise the UE sees in the downlink.
+To do so, we'll open yet another shell and connect to the telnet server running in
+the UE softmodem where we can manipulate the channel model.
+
+```
+telnet 127.0.0.1 9090
+```
+
+You'll see output like this:
+
+```
 Trying 127.0.0.1...
 Connected to 127.0.0.1.
 Escape character is '^]'.
@@ -167,19 +257,12 @@ Escape character is '^]'.
 Press `enter` to yeild the following prompt:
 
 ```
-$ telnet 127.0.0.1 9090
-Trying 127.0.0.1...
-Connected to 127.0.0.1.
-Escape character is '^]'.
-
 softmodem_5Gue>
 ```
 
-We can type `channelmod help` to see available options:
-Type the `channelmod` help:
+We can enter `channelmod help` to see available options. The output will look like this:
 
 ```
-softmodem_5Gue> channelmod help
 channelmod commands can be used to display or modify channel models parameters
 channelmod show predef: display predefined model algorithms available in oai
 channelmod show current: display the currently used models in the running executable
@@ -189,10 +272,15 @@ channelmod modify <model index> <param name> <param value>: set the specified pa
 ```
 
 We started with an `AWGN` model with effectively zero noise in the downlink. We
-can see the current model by typeing `channelmod show current`:
+can see the current model by entering
 
 ```
-$ softmodem_5Gue> channelmod show current
+channelmod show current
+```
+
+which will generate the following output:
+
+```
 model 0 rfsimu_channel_enB0 type AWGN:
 ----------------
 model owner: rfsimulator
@@ -211,53 +299,85 @@ Initial phase: 0.000000   nb_path: 10
 taps: 0   lin. ampli. : 1.000000    delay: 0.000000
 ```
 
-Keep an eye on the UE scope while we add some noise to the downlink:
+We'll ignore everything but the noise parameter today. Arrange your windows such
+that the UE scope and the telnet prompt are both visible and keep an eye on the
+UE scope while we add some noise to the downlink by entering
 
 ```
-softmodem_5Gue> channelmod modify 0  noise_power_dB -20
+channelmod modify 0 noise_power_dB -15
+```
+
+and you'll see the following output from the telnet server indicating the noise
+parameters has been updated to -15:
+
+```
 model owner: rfsimulator
 nb_tx: 1    nb_rx: 1    taps: 1 bandwidth: 0.000000    sampling: 61440000.000000
 channel length: 1    Max path delay: 0.000000   ricean fact.: 0.000000    angle of arrival: 0.000000 (randomized:No)
-max Doppler: 0.000000    path loss: 0.000000  noise: -20.000000 rchannel offset: 0    forget factor; 0.000000
+max Doppler: 0.000000    path loss: 0.000000  noise: -15.000000 rchannel offset: 0    forget factor; 0.000000
 Initial phase: 0.000000   nb_path: 10
 taps: 0   lin. ampli. : 1.000000    delay: 0.000000
 ```
 
-You'll notice a bit more noise in the PDSCH and the MCS might drop to lower order QAM.
+You'll notice a bit more noise in the "PDSCH I/Q of MF Output" plot (clusters
+are little less tight) and the MCS might drop to lower order QAM (fewer
+clusters, e.g., from 64 to 16).
 
+Let's make the SNR even worse:
+
+```
+channelmod modify 0 noise_power_dB -5
+```
+
+Now the MCS is almost guaranteed to drop to 16-QAM or 4-QAM. The downlink
+throughput measured by `iperf3` my drop to zero while the gNodeB figures out
+that it needs to adjust the MCS to counter the increase in noise.
+
+You can always go back to the setting we started with to remind yourself of the
+difference.
+
+```
+channelmod modify 0 noise_power_dB -100
+```
 
 ### Build OAI RAN (optional)
 
-Log into `node` and clone the OAI repository. Note that we are using a local
-mirror of the OAI repository and only making a shallow clone of a specific
-branch in order to speed up the cloning process.
+Let's open a shell and use it to kill most of our processes and clean up our
+workspace:
 
 ```
-bash
-# We will use a dedicated tag since one package is sometimes difficult to install
-git clone --branch 2022.w32 --depth 1 https://gitlab.flux.utah.edu/powder-mirror/openairinterface5g ~/openairinterface5g
+sudo killall iperf3 nr-uesoftmodem nr-softmodem xterm
 ```
 
-Next, install dependencies and build OAI:
+Open another shell and remove the current build of OAI:
 
 ```
-cd ~/openairinterface5g
+sudo rm -rf /opt/openairinterface5g
+```
+
+Now, we'll clone a specific tag of the OAI RAN repository:
+
+```
+sudo git clone --branch 2022.w32 --depth 1 https://gitlab.flux.utah.edu/powder-mirror/openairinterface5g /opt/openairinterface5g
+sudo chown -R $USER:$GROUP /opt/openairinterface5g
+```
+
+Next, we setup the build environment:
+
+```
+cd /opt/openairinterface5g
 source oaienv
-cd cmake_targets/
+```
 
-# include UHD (driver for USRP SDRs) build
-export BUILD_UHD_FROM_SOURCE=True
-export UHD_VERSION=4.0.0.0
+In general, you would then install dependencies with `cd cmake_targets/;
+./build_oai -I`, but we don't need to do this, since they are already installed
+on the image used by this profile. So, we move on to the actual build:
 
-# The next command takes around 8 minutes
-# This command SHALL be done ONCE in the life of your server
-./build_oai -I -w USRP
-
-# Let's build now the gNB and nrUE soft modems
-# The next command takes around 6 minutes
+```
 ./build_oai --gNB --nrUE -w SIMU --build-lib all --ninja
 ```
 
+At this point all of the tutorial steps should work with your fresh OAI build.
 
 """
 
