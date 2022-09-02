@@ -113,7 +113,7 @@ sudo RFSIMULATOR=server ./ran_build/build/nr-softmodem \
   --rfsim
 ```
 
-The `gNodeB` options are:
+The gNodeB options are:
 *  `-O` to pass config file path
 *  `-d` to start the gNodeB scope (remote use requires X-forwarding or VNC/similar)
 *  `--sa` to use 5G `STANDALONE` mode
