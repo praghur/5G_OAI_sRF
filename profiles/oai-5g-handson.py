@@ -260,7 +260,11 @@ Press `enter` to yeild the following prompt:
 softmodem_5Gue>
 ```
 
-We can enter `channelmod help` to see available options. The output will look like this:
+We can enter
+
+```channelmod help```
+
+to see available options. The output will look like this:
 
 ```
 channelmod commands can be used to display or modify channel models parameters
@@ -330,7 +334,7 @@ channelmod modify 0 noise_power_dB -5
 ```
 
 Now the MCS is almost guaranteed to drop to 16-QAM or 4-QAM. The downlink
-throughput measured by `iperf3` my drop to zero while the gNodeB figures out
+throughput measured by `iperf3` might drop to zero while the gNodeB figures out
 that it needs to adjust the MCS to counter the increase in noise.
 
 You can always go back to the setting we started with to remind yourself of the
