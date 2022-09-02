@@ -262,7 +262,9 @@ softmodem_5Gue>
 
 We can enter
 
-```channelmod help```
+```
+channelmod help
+```
 
 to see available options. The output will look like this:
 
