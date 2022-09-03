@@ -380,6 +380,7 @@ In general, you would then install dependencies with `cd cmake_targets/;
 on the image used by this profile. So, we move on to the actual build:
 
 ```
+cd cmake_targets
 ./build_oai --gNB --nrUE -w SIMU --build-lib all --ninja
 ```
 
