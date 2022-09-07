@@ -238,6 +238,12 @@ changes to a higher order QAM (more clusters of dots) and the energy plots in
 the upper sections of the scope show more resource blocks being scheduled. There
 will probably be 64 clusters apparent (64-QAM).
 
+Note: if you've run into issues getting to this point, you can catch up by
+running `nohup /local/repository/bin/restart-all.sh` in any shell. It will take
+a few minutes to stop running processes (if necessary), then start them again.
+
+#### Add some AWGN noise to the downlink
+
 Let's leave `iperf3` running and increase the noise the UE sees in the downlink.
 To do so, we'll open yet another shell and connect to the telnet server running in
 the UE softmodem where we can manipulate the channel model.
