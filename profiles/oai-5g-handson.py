@@ -49,15 +49,14 @@ minimize or move them around to reveal an empty spot on the desktop to click on.
 You can also hide/reveal windows by clicking on them in the list on the right
 side of the desktop.)
 
-There are some commands in the following instructions that are quite long. In
-most browsers, you should be able to copy/paste these command into the VNC
-shells using the keyboard shortcuts that you are used to. (**To be removed**:
-Need to double check this. Regular keyboard shortcuts work for me on a Mac. If
-they don't work for other users, there is no middle button on a Mac trackpad and
-no other way I'm aware of to send the typical X11 "Shift-Insert" command in the
-VNC shell window, even if they first paste into the box at the top left. Not
-sure about Windows, but I maybe there is an "Insert" key that can be reached via
-a "Fn" button or similar.)
+There are some commands in the following instructions that are quite long.
+Depending on your OS/Browser, you may be able to copy/paste these commands
+directly into the VNC shells using the keyboard shortcuts that you are used to.
+If direct copy/paste doesn't work (we've found that it doesn't in some cases for
+Window/Linux users), you'll need to first paste into the white box at the top of
+the VNC window, then focus the VNC shell window you want to paste into and press
+`Shift-Insert` to paste into it. Note that on some laptops the `Insert` key may
+require the use of a `Func` key as well.
 
 ### Start the "minimal" OAI 5G core network deployment
 
