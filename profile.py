@@ -1,21 +1,17 @@
 #!/usr/bin/python
 
 tourDescription = """
-### OAI 5G E2E with Simulated RF
+### MWW 2023: OAI 5G RAN/Core (simulated RF)
 
-This profile deploys a single compute node with an image that includes
-docker, docker-compose, tshark, oai-cn5g-fed v1.2.1, and docker images for all
-of the OAI 5G core network functions. It was originally used for the OAI Fall
-2021 Workshop RAN Lab hands-on sessions. The associated slides and instructions
-for this session, which show how to download, build, and run OAI 5G RAN
-alongside the OAI 5GCN, can be found at:
-
-https://gitlab.flux.utah.edu/powderrenewpublic/oai_fall_2021_workshop.
-
-Some of these instructions have been reproduced below, with adjustments for
-logging into the associated node directly, as opposed to using the browser-based
-VNC client that workshop participants used.
-
+This profile is for an OAI 5G RAN/Core hands-on session during MWW 2023. It
+deploys a single compute node with an image that includes docker,
+docker-compose, tshark, oai-cn5g-fed v1.4.0, and docker images for all of the
+OAI 5G core network functions. It also includes source code and a prebuilt
+version of the OAI RAN stack (gNB, nrUE, RF simulator). Each attendee will
+deploy this profile and use a web-based VNC client to interact with their
+experiment. The description and instructions for this activity can be found
+[here](https://gitlab.flux.utah.edu/powderrenewpublic/mww2023/-/blob/main/content/oai.md).
+Some of these instructions have been reproduced below.
 """
 
 tourInstructions = """
