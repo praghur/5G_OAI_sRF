@@ -200,7 +200,7 @@ request = portal.context.makeRequestRSpec()
 
 node = request.RawPC( "node" )
 node.hardware_type = "d430"
-node.disk_image = "urn:publicid:IDN+emulab.net+image+OAI2021FallWS:oai-cn5g-docker"
+node.disk_image = "urn:publicid:IDN+emulab.net+image+mww2023:oai-cn5g-rfsim"
 
 tour = IG.Tour()
 tour.Description(IG.Tour.MARKDOWN, tourDescription)
