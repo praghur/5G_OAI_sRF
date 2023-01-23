@@ -1,0 +1,56 @@
+ls /opt/oai-cn5g-fed
+ls -l /opt/oai-cn5g-fed/component
+
+# list docker images
+sudo docker images oai*
+
+# view yaml file
+less /opt/oai-cn5g-fed/docker-compose/docker-compose-basic-nrf.yaml
+
+# start CN
+cd /opt/oai-cn5g-fed/docker-compose
+sudo python3 ./core-network.py --type start-basic --scenario 1
+
+# ping oai-ext-dn
+ping 192.168.70.135
+
+# look at oai ran source
+cd /opt/openairinterface5g
+ls -l
+
+# build oai ran
+source oaienv
+cd cmake_targets
+./build_oai -c -C -I --ninja
+./build_oai -c -C --gNB --nrUE -w SIMU --build-lib all --ninja
+
+# watch oai-amf logs for gNB and UE connection
+sudo docker logs -f oai-amf
+
+# start gNB
+cd /opt/openairinterface5g/cmake_targets
+sudo RFSIMULATOR=server ./ran_build/build/nr-softmodem -O /local/repository/etc/gnb.conf -d --sa --rfsim
+
+# start nrUE
+cd /opt/openairinterface5g/cmake_targets
+sudo RFSIMULATOR=127.0.0.1 ./ran_build/build/nr-uesoftmodem -O /local/repository/etc/ue.conf -r 106 -C 3619200000 -d --sa --nokrnmod --numerology 1 --band 78 --rfsim --rfsimulator.options chanmod --telnetsrv
+
+# ping oai-ext-dn from UE
+ping -I oaitun_ue1 192.168.70.135
+
+# start iperf3 server for DL traffic generation
+iperf3 -s
+
+# start iperf3 client in oai-ext-dn container pointed at nrUE IP address
+UEIP=$(ip -o -4 addr list oaitun_ue1 | awk '{print $4}' | cut -d/ -f1)
+sudo docker exec -it oai-ext-dn iperf3 -c $UEIP -t 50000
+
+# start telnet client
+telnet 127.0.0.1 9090
+
+# telnet commands
+channelmod help
+channelmod show current
+channelmod modify 0 noise_power_dB -15
+channelmod modify 0 noise_power_dB -5
+channelmod modify 0 noise_power_dB -100
