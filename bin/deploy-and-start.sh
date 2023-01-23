@@ -5,8 +5,8 @@ export DISPLAY=:1
 sudo killall nr-uesoftmodem nr-softmodem iperf3 oai-watchdog.sh || true
 
 cd /opt/oai-cn5g-fed/docker-compose
-sudo python3 ./core-network.py --type stop-mini --fqdn no --scenario 1
-sudo python3 ./core-network.py --type start-mini --fqdn no --scenario 1
+sudo python3 ./core-network.py --type stop-basic --scenario 1
+sudo python3 ./core-network.py --type start-basic --scenario 1
 
 xterm -e bash -c "sudo docker logs -f oai-amf" &
 sleep 1
