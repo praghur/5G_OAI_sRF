@@ -11,7 +11,6 @@ version of the OAI RAN stack (gNB, nrUE, RF simulator). Each attendee will
 deploy this profile and use a web-based VNC client to interact with their
 experiment. The description and instructions for this activity can be found
 [here](https://gitlab.flux.utah.edu/powderrenewpublic/mww2023/-/blob/main/content/oai.md).
-Some of these instructions have been reproduced below.
 """
 
 tourInstructions = """
