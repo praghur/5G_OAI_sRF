@@ -54,3 +54,6 @@ channelmod show current
 channelmod modify 0 noise_power_dB -15
 channelmod modify 0 noise_power_dB -5
 channelmod modify 0 noise_power_dB -100
+
+# escape hatch.. this will get you to the point right before we start the telnet server
+/local/repository/bin/restart-all.sh
