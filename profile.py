@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 tourDescription = """
-### MERIF 2023: Teaching 5G with POWDER
+### MERIF 2023: Teaching 5G with POWDER and OpenAirInterface5G
 
 This profile is for an educational tutorial session during MERIF 2023. It
 deploys a single compute node with an image that includes docker,
