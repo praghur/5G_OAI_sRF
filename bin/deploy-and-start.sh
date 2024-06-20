@@ -12,7 +12,7 @@ xterm -e bash -c "sudo docker logs -f oai-amf" &
 sleep 1
 xterm -e bash -c "cd /opt/openairinterface5g/cmake_targets; sudo RFSIMULATOR=server ./ran_build/build/nr-softmodem --rfsim --sa -O /local/repository/etc/gnb1.conf -d" &
 sleep 5
-xterm -e bash -c "cd /opt/openairinterface5g/cmake_targets; sudo sudo RFSIMULATOR=127.0.0.1 ./ran_build/build/nr-uesoftmodem -r 106 --numerology 3 --band 78 -C 3619200000 --rfsim --sa --nokrnmod -O /local/repository/etc/ue.conf -d" &
+xterm -e bash -c "cd /opt/openairinterface5g/cmake_targets; sudo sudo RFSIMULATOR=127.0.0.1 ./ran_build/build/nr-uesoftmodem -r 106 --numerology 3 --band 78 -C 3619200000 --rfsim --sa --nokrnmod -O /local/repository/etc/ue1.conf -d" &
 sleep 10
 xterm -e bash -c "iperf3 -s" &
 sleep 1
